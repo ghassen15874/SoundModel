@@ -2,11 +2,14 @@ import os
 import sys
 import time
 
-os.environ["HF_HUB_DISABLE_XET"] = "1"
-os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "300"
-os.environ["HF_HUB_ETAG_TIMEOUT"] = "60"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
-from huggingface_hub import hf_hub_download
+try:
+    from scripts.fast_hf_download import download_file_parallel
+except ImportError:
+    from fast_hf_download import download_file_parallel
 
 MODELS_TO_DOWNLOAD = [
     {
@@ -21,37 +24,9 @@ MODELS_TO_DOWNLOAD = [
     }
 ]
 
-def download_file(repo_id, filename, local_dir, max_attempts=30):
-    dest_path = os.path.join(local_dir, filename)
-    print(f"\n==========================================")
-    print(f"[*] Target: {repo_id} -> {filename}")
-    print(f"[*] Destination: {dest_path}")
-    print(f"==========================================")
-    
-    if os.path.exists(dest_path) and os.path.getsize(dest_path) > 100 * 1024 * 1024:
-        print(f"[+] Already downloaded: {dest_path} ({os.path.getsize(dest_path)/(1024*1024):.2f} MB)")
-        return dest_path
-        
-    for attempt in range(1, max_attempts + 1):
-        try:
-            print(f"[Attempt {attempt}/{max_attempts}] Downloading {filename}...")
-            result = hf_hub_download(
-                repo_id=repo_id,
-                filename=filename,
-                local_dir=local_dir,
-                resume_download=True
-            )
-            print(f"[+] Successfully finished: {result}")
-            return result
-        except Exception as e:
-            print(f"[!] Interruption during attempt {attempt}: {e}")
-            time.sleep(3)
-            
-    raise RuntimeError(f"Failed to download {filename} after {max_attempts} attempts.")
-
 def main():
     for item in MODELS_TO_DOWNLOAD:
-        download_file(item["repo_id"], item["filename"], item["local_dir"])
+        download_file_parallel(item["repo_id"], item["filename"], item["local_dir"])
     print("\n[+++] ALL REQUESTED MODELS DOWNLOADED SUCCESSFULLY [+++]")
 
 if __name__ == "__main__":
