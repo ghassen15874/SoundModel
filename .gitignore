@@ -1,0 +1,62 @@
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large AI Model Checkpoints & Weights (>100MB)
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
+*.ckpt
+
+# Model Incomplete & State Files
+*.tmp
+*.parts.json
+*.lock
+*.metadata
+.cache/
+models/**/.cache/
+
+# Audio Generation Outputs
+static/audio/*.mp3
+static/audio/*.wav
+output_*.wav
+output_*.mp3
+output_darija/
+*.wav
+*.mp3
+
+# Keep reference audio & model config files tracked
+!models/f5_ref/reference.wav
+!models/arabic_f5/reference.wav
+!models/arabic_f5/*.yaml
+!models/arabic_f5/vocab.txt
+!models/silma/*.yaml
+!models/silma/vocab.txt
+!models/silma/ref.wav
+!models/piper/*.json
+!models/vocos/*.yaml
+!static/audio/.gitkeep
+
+# Logs & Temporary Files
+*.log
+scratch/
+.tmp/
+
+# OS and Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
