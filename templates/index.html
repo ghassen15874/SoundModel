@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استوديو نماذج الصوت العربي والدارجة | Arabic & Darija TTS Studio</title>
+  <meta name="description" content="مختبر متكامل لتوليد الصوت العربي والدارجة المغربية لجميع الاستخدامات وفيديوهات الشرح">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --card-bg: rgba(23, 32, 54, 0.82);
+      --card-border: rgba(99, 102, 241, 0.22);
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top center, #1e1b4b 0%, var(--bg-dark) 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .glow-orb {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.16) 0%, rgba(6, 182, 212, 0.05) 50%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(50px);
+    }
+    .orb-left { top: -100px; right: -150px; }
+    .orb-right { bottom: -150px; left: -150px; }
+
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 2.2rem 1.5rem 1rem;
+      text-align: center;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #c7d2fe;
+      margin-bottom: 0.85rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 65%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      transition: var(--transition);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 5-way Model Tabs Grid */
+    .engine-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .engine-card {
+      background: rgba(10, 15, 29, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: right;
+    }
+
+    .engine-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      transform: translateY(-2px);
+    }
+
+    .engine-card.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.25);
+    }
+
+    .engine-card.active-darija {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.25) 0%, rgba(99, 102, 241, 0.2) 100%);
+      border-color: var(--accent-rose);
+      box-shadow: 0 4px 18px rgba(244, 63, 94, 0.25);
+    }
+
+    .engine-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .engine-name {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .engine-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-cyan);
+    }
+
+    .engine-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    /* Voice dropdown */
+    .voice-select-box {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 11px 15px;
+      background: rgba(10, 15, 29, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.02rem;
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    /* Textarea */
+    textarea {
+      width: 100%;
+      height: 130px;
+      padding: 1rem 1.25rem;
+      background: rgba(10, 15, 29, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.15rem;
+      line-height: 1.8;
+      resize: vertical;
+      transition: var(--transition);
+      outline: none;
+      direction: rtl;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .textarea-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Preset Chips */
+    .presets-title {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      margin: 1.1rem 0 0.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .presets-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .preset-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .preset-chip:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.5);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .preset-chip.chip-darija {
+      border-color: rgba(244, 63, 94, 0.3);
+      background: rgba(244, 63, 94, 0.08);
+      color: #fecdd3;
+    }
+    .preset-chip.chip-darija:hover {
+      background: rgba(244, 63, 94, 0.25);
+      border-color: var(--accent-rose);
+      color: #fff;
+    }
+
+    /* Controls row */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .speed-slider {
+      -webkit-appearance: none;
+      width: 140px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .speed-val {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      min-width: 45px;
+      direction: ltr;
+    }
+
+    .btn-generate {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-cyan) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.9rem 2.4rem;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+      transition: var(--transition);
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(6, 182, 212, 0.45);
+    }
+
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Output Section */
+    .audio-result {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .stats-pill {
+      display: inline-flex;
+      gap: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 5px 14px;
+      border-radius: 20px;
+      color: #94a3b8;
+    }
+    .stats-pill strong { color: var(--accent-cyan); }
+
+    /* Visualizer */
+    .visualizer-box {
+      background: rgba(10, 15, 29, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 0 1.5rem;
+    }
+
+    .v-bar {
+      flex: 1;
+      max-width: 6px;
+      height: 8px;
+      background: linear-gradient(to top, var(--accent-indigo), var(--accent-cyan));
+      border-radius: 4px;
+      transition: height 0.1s ease;
+    }
+
+    .visualizer-box.playing .v-bar { animation: bounce 1.2s infinite ease-in-out; }
+    @keyframes bounce { 0%, 100% { height: 8px; } 50% { height: 65px; } }
+    .v-bar:nth-child(2n) { animation-delay: 0.2s; }
+    .v-bar:nth-child(3n) { animation-delay: 0.4s; }
+    .v-bar:nth-child(4n) { animation-delay: 0.1s; }
+    .v-bar:nth-child(5n) { animation-delay: 0.5s; }
+
+    audio {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--radius-md);
+      outline: none;
+      filter: invert(0.9) hue-rotate(180deg);
+    }
+
+    .audio-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-family: 'Cairo', sans-serif;
+      transition: var(--transition);
+    }
+
+    .btn-action:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+    .btn-download {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+    }
+    .btn-download:hover { background: rgba(16, 185, 129, 0.35); color: #fff; }
+
+    .history-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 15, 29, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+    }
+
+    .history-text {
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      max-width: 55%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 1.85rem; }
+      .engine-grid { grid-template-columns: 1fr 1fr; }
+      .controls-row { flex-direction: column; align-items: stretch; }
+      .btn-generate { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-orb orb-left"></div>
+  <div class="glow-orb orb-right"></div>
+
+  <header>
+    <div class="badge-top">
+      <span class="status-dot"></span>
+      <span id="activeModelLabel">مختبر نماذج الصوت العربي • 5 خيارات ومحركات متكاملة</span>
+    </div>
+    <h1>استوديو نماذج الصوت العربي والدارجة</h1>
+    <p class="subtitle">جميع النماذج محفوظة بالكامل (فيسبوك، بايبر أوفلاين، جوجل، استوديو عصبي) بالإضافة للدارجة المغربية المخصصة للشروحات.</p>
+  </header>
+
+  <main>
+    <!-- Main Card -->
+    <section class="card">
+      <div class="card-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-cyan);"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <span>اختر المحرك أو النموذج المطلوب:</span>
+      </div>
+
+      <!-- 5 Engine Cards -->
+      <div class="engine-grid">
+        <!-- 1. Darija Explainer -->
+        <div class="engine-card active active-darija" data-engine="darija">
+          <div class="engine-header">
+            <span class="engine-name">🇲🇦 الدارجة المغربية</span>
+            <span class="engine-badge" style="color:var(--accent-rose);">شروحات وريلز</span>
+          </div>
+          <p class="engine-desc">صوت جمال أو مونا البشري الطبيعي للشروحات القصيرة وتيك توك بدون روبوتية.</p>
+        </div>
+
+        <!-- 2. SILMA TTS v1 (Requested) -->
+        <div class="engine-card" data-engine="silma" id="cardSilma">
+          <div class="engine-header">
+            <span class="engine-name">🔥 SILMA TTS v1</span>
+            <span class="engine-badge" id="badgeSilma" style="color:var(--accent-cyan);">جار التحميل...</span>
+          </div>
+          <p class="engine-desc">أحدث نموذج عربي مبني على الانتشار (Diffusion) لصوت عربي بشري عالي الواقعية.</p>
+        </div>
+
+        <!-- 3. Arabic-F5-TTS-v2 (Requested) -->
+        <div class="engine-card" data-engine="arabic_f5" id="cardArabicF5">
+          <div class="engine-header">
+            <span class="engine-name">💎 Arabic-F5 v2</span>
+            <span class="engine-badge" id="badgeArabicF5" style="color:var(--accent-purple);">جار التحميل...</span>
+          </div>
+          <p class="engine-desc">الجيل الثاني من نموذج F5-TTS العربي المطور لاستنساخ ونطق الكلام البشري الطبيعي.</p>
+        </div>
+
+        <!-- 4. Studio Neural HD -->
+        <div class="engine-card" data-engine="neural">
+          <div class="engine-header">
+            <span class="engine-name">🎙️ Studio Neural HD</span>
+            <span class="engine-badge">24 kHz</span>
+          </div>
+          <p class="engine-desc">لهجات عربية متعددة (سعودي، مصري، إماراتي، تونسي، أردني) بجودة فائقة.</p>
+        </div>
+
+        <!-- 5. Piper ONNX -->
+        <div class="engine-card" data-engine="piper">
+          <div class="engine-header">
+            <span class="engine-name">⚡ Piper ONNX</span>
+            <span class="engine-badge">22 kHz أوفلاين</span>
+          </div>
+          <p class="engine-desc">نموذج عصبي محلي بصوت كريم الفصيح، سريع ويعمل بالكامل بدون إنترنت.</p>
+        </div>
+
+        <!-- 6. Google Neural -->
+        <div class="engine-card" data-engine="google">
+          <div class="engine-header">
+            <span class="engine-name">🌐 Google Neural</span>
+            <span class="engine-badge">24 kHz</span>
+          </div>
+          <p class="engine-desc">نطق لغة عربية فصحى قياسي واضح ومتزن من جوجل.</p>
+        </div>
+
+        <!-- 7. Facebook MMS -->
+        <div class="engine-card" data-engine="mms">
+          <div class="engine-header">
+            <span class="engine-name">🤖 Facebook MMS</span>
+            <span class="engine-badge">16 kHz محلي</span>
+          </div>
+          <p class="engine-desc">نموذج فيسبوك الأصلي (VITS) المحفوظ على جهازك لمن يرغب بمقارنته.</p>
+        </div>
+      </div>
+
+      <!-- Voice Selector Box -->
+      <div class="voice-select-box" id="voiceSelectBox">
+        <label for="voiceSelect" style="font-size:0.95rem; font-weight:700; color:#fff;" id="voiceLabel">اختر المعلق واللهجة:</label>
+        <select id="voiceSelect">
+          <optgroup label="🇲🇦 أصوات الدارجة المغربية والمغاربية (الأفضل للفيديوهات والشروحات)">
+            <option value="ar-MA-JamalNeural" selected>🇲🇦 جمال (دارجة مغربية - رجالي طبيعي وحماسي للشروحات)</option>
+            <option value="ar-MA-MounaNeural">🇲🇦 مونا (دارجة مغربية - نسائي عفوي وطبيعي)</option>
+            <option value="ar-DZ-IsmaelNeural">🇩🇿 إسماعيل (لهجة جزائرية/مغاربية - رجالي)</option>
+            <option value="ar-DZ-AminaNeural">🇩🇿 أمينة (لهجة جزائرية/مغاربية - نسائي)</option>
+            <option value="ar-TN-HediNeural">🇹🇳 هادي (لهجة تونسية/مغاربية - رجالي)</option>
+            <option value="ar-TN-ReemNeural">🇹🇳 ريم (لهجة تونسية/مغاربية - نسائي)</option>
+          </optgroup>
+          <optgroup label="🌍 أصوات اللهجات المشرقية والفصحى (Studio HD)">
+            <option value="ar-SA-HamedNeural">🇸🇦 حامد (سعودي فخم ورسمي - رجالي)</option>
+            <option value="ar-SA-ZariyahNeural">🇸🇦 زارية (سعودي نقي - نسائي)</option>
+            <option value="ar-EG-SalmaNeural">🇪🇬 سلمى (مصري جذاب - نسائي)</option>
+            <option value="ar-EG-ShakirNeural">🇪🇬 شاكر (مصري هادئ - رجالي)</option>
+            <option value="ar-AE-HamdanNeural">🇦🇪 حمدان (إماراتي رسمي - رجالي)</option>
+            <option value="ar-AE-FatimaNeural">🇦🇪 فاطمة (إماراتي راقي - نسائي)</option>
+            <option value="ar-JO-TaimNeural">🇯🇴 تيم (أردني - رجالي)</option>
+            <option value="ar-JO-SanaNeural">🇯🇴 سناء (أردني - نسائي)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- Text Input -->
+      <div class="textarea-wrapper">
+        <textarea id="arabicInput" placeholder="اكتب النص هنا...">سلام عليكم الدراري! فهاد الفيديو القصير غادي نوريكم واحد البلان واعر بزاف اللي غادي يسهل عليكم الخدمة!</textarea>
+        <div class="textarea-footer">
+          <span id="charCount">0 حرف</span>
+          <button id="btnClear" type="button" class="btn-action" style="padding: 2px 10px; font-size: 0.8rem;">مسح النص</button>
+        </div>
+      </div>
+
+      <!-- Presets (Both Darija Explainer and Classical Kept) -->
+      <div class="presets-title">
+        <span>🎬 نماذج وسيناريوهات جاهزة للاختبار (دارجة وفصحى):</span>
+      </div>
+      <div class="presets-grid">
+        <!-- Darija Presets -->
+        <button type="button" class="preset-chip chip-darija" data-text="سلام عليكم الدراري! فهاد الفيديو القصير غادي نوريكم واحد البلان واعر بزاف اللي غادي يسهل عليكم الخدمة!">
+          🔥 دارجة: مقدمة تشويقية (Hook)
+        </button>
+        <button type="button" class="preset-chip chip-darija" data-text="أول حاجة كديرها هي كتدخل لهاد السيت، كتكليكي هنايا، ومن بعد كتخرج ليك النتيجة ناضية فثواني معدودة بلا تعقيد.">
+          💡 دارجة: شرح خطوة بخطوة
+        </button>
+        <button type="button" class="preset-chip chip-darija" data-text="واش كنتي عارف بلي تقدر تصاوب هادشي كامل بالذكاء الاصطناعي فدقيقة وحدة؟ تبع معايا حتى اللخر باش تفهم مزيان!">
+          🚀 دارجة: سر ونصيحة تقنية
+        </button>
+        <button type="button" class="preset-chip chip-darija" data-text="إلا عجبك هاد الفيديو وبغيتي تشوف شروحات خرى بحال هادي، دير جيم وبارطاجي مع صحابك وما تنساش تابونا فلاشين!">
+          🎯 دارجة: خاتمة واشتراك
+        </button>
+        <!-- Classical / MSA Presets Kept -->
+        <button type="button" class="preset-chip" data-text="مَرْحَبًا بِكُمْ جَمِيعًا فِي اسْتُودْيُو الصَّوْتِ العَرَبِيِّ الذَّكِيِّ، أَهْلًا وَسَهْلًا بِكُمْ.">
+          👑 فصحى: ترحيب ملكي فخم
+        </button>
+        <button type="button" class="preset-chip" data-text="نُقَدِّمُ لَكُمُ اليَوْمَ نَشْرَةً إِخْبَارِيَّةً شَامِلَةً عَنْ آخِرِ التَّطَوُّرَاتِ فِي عَالَمِ الذَّكَاءِ الاصْطِنَاعِيِّ.">
+          📰 فصحى: نشرة إخبارية
+        </button>
+        <button type="button" class="preset-chip" data-text="كَيْفَ يُمْكِنُنِي مُسَاعَدَتُكَ اليَوْمَ؟ هَلْ تُرِيدُ تَوْلِيدَ مَقْطَعٍ لِفِيدْيُو أَمْ كِتَابٍ صَوْتِيٍّ؟">
+          💬 فصحى: محادثة تفاعلية
+        </button>
+        <button type="button" class="preset-chip" data-text="سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ.">
+          ✨ فصحى: دعاء وتسبيح
+        </button>
+      </div>
+
+      <!-- Controls Row -->
+      <div class="controls-row">
+        <div class="speed-control">
+          <span>السرعة:</span>
+          <input type="range" id="speedSlider" class="speed-slider" min="0.75" max="1.50" step="0.05" value="1.10">
+          <span id="speedValue" class="speed-val">1.10x</span>
+        </div>
+
+        <button id="btnGenerate" class="btn-generate">
+          <span class="spinner" id="spinner"></span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <span id="btnText">توليد الصوت الآن</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Audio Player Result Card -->
+    <section id="audioCard" class="card audio-result">
+      <div class="result-header">
+        <div class="card-title" style="margin-bottom: 0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-emerald);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span id="resultTitle">تم التوليد بنجاح!</span>
+        </div>
+        <div class="stats-pill">
+          <span>النموذج: <strong id="statModel">الدارجة المغربية</strong></span>
+          <span>المدة: <strong id="statDuration">0.0s</strong></span>
+          <span>وقت التوليد: <strong id="statInference">0.0s</strong></span>
+        </div>
+      </div>
+
+      <div class="visualizer-box" id="visualizer">
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+      </div>
+
+      <audio id="audioPlayer" controls></audio>
+
+      <div class="audio-actions">
+        <a id="btnDownload" href="#" download="speech_audio.mp3" class="btn-action btn-download">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>تحميل المقطع الصوتي</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- History Card -->
+    <section class="card" id="historyCard" style="display: none;">
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#c7d2fe;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>سجل المقاطع الأخيرة</span>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>استوديو نماذج الصوت العربي والدارجة • جميع النماذج محفوظة ومتاحة محلياً</p>
+    <p style="margin-top: 4px; font-size: 0.78rem;">Moroccan Darija Neural • Studio HD • Piper ONNX 22kHz • Google MSA • Facebook MMS 16kHz</p>
+  </footer>
+
+  <script>
+    let currentEngine = 'darija';
+
+    const engineCards = document.querySelectorAll('.engine-card');
+    const voiceSelectBox = document.getElementById('voiceSelectBox');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const activeModelLabel = document.getElementById('activeModelLabel');
+
+    const arabicInput = document.getElementById('arabicInput');
+    const charCount = document.getElementById('charCount');
+    const btnClear = document.getElementById('btnClear');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
+    const btnGenerate = document.getElementById('btnGenerate');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+
+    const audioCard = document.getElementById('audioCard');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const btnDownload = document.getElementById('btnDownload');
+    const statModel = document.getElementById('statModel');
+    const statDuration = document.getElementById('statDuration');
+    const statInference = document.getElementById('statInference');
+    const visualizer = document.getElementById('visualizer');
+
+    const historyCard = document.getElementById('historyCard');
+    const historyList = document.getElementById('historyList');
+
+    // Engine Switcher
+    engineCards.forEach(card => {
+      card.addEventListener('click', () => {
+        engineCards.forEach(c => {
+          c.classList.remove('active');
+          c.classList.remove('active-darija');
+        });
+        currentEngine = card.getAttribute('data-engine');
+
+        if (currentEngine === 'darija') {
+          card.classList.add('active');
+          card.classList.add('active-darija');
+          voiceSelectBox.style.display = 'flex';
+          voiceSelect.value = 'ar-MA-JamalNeural';
+          speedSlider.value = 1.10;
+          speedValue.textContent = '1.10x';
+          activeModelLabel.textContent = '🇲🇦 وضع الدارجة المغربية • فيديوهات الشرح القصيرة (Short Explainer)';
+          btnText.textContent = 'توليد الصوت بالدارجة الآن';
+        } else if (currentEngine === 'silma') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'none';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '🔥 SILMA TTS v1 • أحدث نموذج عربي مبني على الانتشار (Diffusion)';
+          btnText.textContent = 'توليد الصوت (SILMA TTS)';
+        } else if (currentEngine === 'arabic_f5') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'none';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '💎 Arabic-F5 v2 • استنساخ ونطق الكلام البشري الطبيعي للشروحات';
+          btnText.textContent = 'توليد الصوت (Arabic-F5 v2)';
+        } else if (currentEngine === 'neural') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'flex';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '🎙️ Studio Neural HD • جودة استوديو بشرية فائقة لجميع اللهجات';
+          btnText.textContent = 'توليد الصوت (Studio Neural)';
+        } else if (currentEngine === 'piper') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'none';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '⚡ Piper Neural Offline • نموذج محلي ONNX 22kHz';
+          btnText.textContent = 'توليد الصوت (بايبر أوفلاين)';
+        } else if (currentEngine === 'google') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'none';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '🌐 Google Neural • فصحى قياسية واضحة';
+          btnText.textContent = 'توليد الصوت (جوجل)';
+        } else if (currentEngine === 'mms') {
+          card.classList.add('active');
+          voiceSelectBox.style.display = 'none';
+          speedSlider.value = 1.00;
+          speedValue.textContent = '1.00x';
+          activeModelLabel.textContent = '🤖 Facebook MMS-TTS • نموذج محلي VITS 16kHz';
+          btnText.textContent = 'توليد الصوت (فيسبوك MMS)';
+        }
+      });
+    });
+
+    async function checkModelStatus() {
+      try {
+        const r = await fetch('/api/model_status');
+        const data = await r.json();
+        const bSilma = document.getElementById('badgeSilma');
+        const bF5 = document.getElementById('badgeArabicF5');
+        if (bSilma && data.silma) {
+          if (data.silma.ready) {
+            bSilma.textContent = 'جاهز للاستخدام ✓';
+            bSilma.style.color = 'var(--accent-emerald)';
+          } else {
+            bSilma.textContent = `جاري التحميل (${data.silma.progress}%)`;
+            bSilma.style.color = 'var(--accent-cyan)';
+          }
+        }
+        if (bF5 && data.arabic_f5) {
+          if (data.arabic_f5.ready) {
+            bF5.textContent = 'جاهز للاستخدام ✓';
+            bF5.style.color = 'var(--accent-emerald)';
+          } else if (data.silma && !data.silma.ready) {
+            bF5.textContent = 'في الانتظار...';
+            bF5.style.color = 'var(--accent-purple)';
+          } else {
+            bF5.textContent = `جاري التحميل (${data.arabic_f5.progress}%)`;
+            bF5.style.color = 'var(--accent-purple)';
+          }
+        }
+      } catch (e) {}
+    }
+    setInterval(checkModelStatus, 3000);
+    checkModelStatus();
+
+    function updateCharCount() {
+      charCount.textContent = `${arabicInput.value.trim().length} حرف`;
+    }
+    arabicInput.addEventListener('input', updateCharCount);
+    updateCharCount();
+
+    btnClear.addEventListener('click', () => {
+      arabicInput.value = '';
+      arabicInput.focus();
+      updateCharCount();
+    });
+
+    document.querySelectorAll('.preset-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        arabicInput.value = btn.getAttribute('data-text');
+        updateCharCount();
+        arabicInput.focus();
+      });
+    });
+
+    speedSlider.addEventListener('input', (e) => {
+      speedValue.textContent = `${parseFloat(e.target.value).toFixed(2)}x`;
+    });
+
+    audioPlayer.addEventListener('play', () => visualizer.classList.add('playing'));
+    audioPlayer.addEventListener('pause', () => visualizer.classList.remove('playing'));
+    audioPlayer.addEventListener('ended', () => visualizer.classList.remove('playing'));
+
+    // Generate Audio
+    btnGenerate.addEventListener('click', async () => {
+      const text = arabicInput.value.trim();
+      if (!text) {
+        alert('يرجى إدخال النص أولاً.');
+        arabicInput.focus();
+        return;
+      }
+
+      const speed = parseFloat(speedSlider.value) || 1.0;
+      const voice = voiceSelect.value;
+      const apiEngine = (currentEngine === 'darija') ? 'neural' : currentEngine;
+
+      btnGenerate.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'جاري التوليد...';
+
+      try {
+        const resp = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, engine: apiEngine, voice, speed })
+        });
+
+        const data = await resp.json();
+
+        if (data.success) {
+          audioCard.style.display = 'flex';
+          audioPlayer.src = data.audio_url + '?t=' + Date.now();
+          btnDownload.href = data.audio_url;
+          btnDownload.download = data.filename;
+
+          statModel.textContent = data.model_name || data.engine;
+          statDuration.textContent = `${data.duration.toFixed(2)} ثانية`;
+          statInference.textContent = `${data.inference_time.toFixed(2)} ثانية`;
+
+          try { await audioPlayer.play(); } catch(e) {}
+
+          addToHistory(text, data.audio_url, data.model_name || data.engine, data.duration);
+        } else {
+          alert('حدث خطأ: ' + (data.error || 'خطأ غير معروف'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('تعذر الاتصال بالخادم.');
+      } finally {
+        btnGenerate.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'توليد الصوت الآن';
+      }
+    });
+
+    function addToHistory(text, url, modelName, duration) {
+      historyCard.style.display = 'block';
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <span class="history-text" title="${text}">${text}</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size:0.75rem; padding: 2px 8px; border-radius:10px; background: rgba(99,102,241,0.2); color:#c7d2fe;">${modelName}</span>
+          <span style="font-family:'Outfit'; font-size:0.8rem; color:var(--text-muted);">${duration.toFixed(1)}s</span>
+          <button class="btn-action" style="padding: 4px 10px; font-size: 0.8rem;" onclick="playHistory('${url}')">▶ تشغيل</button>
+        </div>
+      `;
+      historyList.prepend(item);
+    }
+
+    window.playHistory = function(url) {
+      audioPlayer.src = url;
+      audioPlayer.play();
+    };
+  </script>
+</body>
+</html>
